@@ -281,10 +281,16 @@ public class SpringApplication {
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
+		//1、推测工程类型：servelt
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
 		this.bootstrappers = new ArrayList<>(getSpringFactoriesInstances(Bootstrapper.class));
+
+		//2、ApplicationContextInitializer：Spring容器初始化的时候，会调用实现了这个接口的类，不管是我们代码中自定义的还是第三方框架实现的类
+		//ApplicationListener：spring中事件监听器，当发生某些事件的时候，会回调指定的类，执行对应的事件
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+
+		//3、推断main方法的入口类在哪里
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
@@ -315,6 +321,7 @@ public class SpringApplication {
 		DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 		ConfigurableApplicationContext context = null;
 		configureHeadlessProperty();
+		//SpringApplicationRunListener:实现sprigboot接口的实现类
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting(bootstrapContext, this.mainApplicationClass);
 		try {
@@ -439,7 +446,7 @@ public class SpringApplication {
 	private SpringApplicationRunListeners getRunListeners(String[] args) {
 		Class<?>[] types = new Class<?>[] { SpringApplication.class, String[].class };
 		return new SpringApplicationRunListeners(logger,
-				getSpringFactoriesInstances(SpringApplicationRunListener.class, types, this, args),
+				getSpringFactoriesInstances(c.class, types, this, args),
 				this.applicationStartup);
 	}
 
